@@ -1,0 +1,26 @@
+#!/bin/bash
+#TODO: check distro and packages
+
+cmake . || exit 1
+make -j$(grep "^processor" /proc/cpuinfo | wc -l) "$@" || exit 1
+
+BUILD_ID=RiccetHook(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)RiccetHook
+
+if [ -f build_id ]; then
+    filename=$(cat build_id)
+    rm $filename
+    if [ -f /$filename ]; then
+        sudo rm /$filename
+    fi
+    chmod 660 build_id
+fi
+
+echo "$BUILD_ID" > build_id
+mv libHitlerhook.so "$BUILD_ID"
+
+strip -s -v "$BUILD_ID"
+	
+
+chmod 400 build_id #User read only
+
+echo "Build Completed."
