@@ -6,7 +6,7 @@ bool Settings::ScreenshotCleaner::enabled = false;
 
 ColorVar Settings::UI::mainColor = ImColor(25, 25, 25, 255);
 ColorVar Settings::UI::bodyColor = ImColor(5, 5, 5, 255);
-ColorVar Settings::UI::fontColor = ImColor(255, 255, 255, 255);
+ColorVar Settings::UI::fontColor = ImColor(0, 255, 0, 255);
 ColorVar Settings::UI::accentColor = ImColor(39, 106, 219, 255);
 
 #define IM_ARRAYSIZE(_ARR)  ((int)(sizeof(_ARR)/sizeof(*_ARR)))
@@ -53,7 +53,7 @@ void UI::SwapWindow()
 	if (engine->IsInGame())
 		return;
 
-	Draw::ImDrawText(ImVec2(4.f, 4.f), ImColor(0, 0, 255, 255), XORSTR("Hitlerhook"), NULL, 0.0f, NULL, ImFontFlags_Shadow);
+	Draw::ImDrawText(ImVec2(4.f, 4.f), ImColor(132, 112, 255, 255), XORSTR("RiccetHook"), NULL, 0.0f, NULL, ImFontFlags_Shadow);
 }
 
 void UI::SetVisible(bool visible)
