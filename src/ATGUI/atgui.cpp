@@ -1,13 +1,15 @@
 #include "atgui.h"
 
 bool UI::isVisible = false;
+bool Settings::Watermark::enabled = true;
+char* Settings::Watermark::text = strdup("RiccetHook");
+ColorVar Settings::Watermark::color = ImColor(255, 255, 255, 255);
 
 bool Settings::ScreenshotCleaner::enabled = false;
 
-ColorVar Settings::UI::mainColor = ImColor(25, 25, 25, 255);
-ColorVar Settings::UI::bodyColor = ImColor(5, 5, 5, 255);
-ColorVar Settings::UI::fontColor = ImColor(0, 255, 0, 255);
-ColorVar Settings::UI::accentColor = ImColor(39, 106, 219, 255);
+ColorVar Settings::UI::mainColor = ImColor(0, 218, 70, 156);
+ColorVar Settings::UI::bodyColor = ImColor(5, 24, 32, 238);
+ColorVar Settings::UI::fontColor = ImColor(0, 254, 219, 255);
 
 #define IM_ARRAYSIZE(_ARR)  ((int)(sizeof(_ARR)/sizeof(*_ARR)))
 
@@ -17,56 +19,64 @@ void SetupMainMenuBar()
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8 * 2.0f, 4 * 2.0f));
 
-		ImGui::Selectable(XORSTR("Main Window"), &Main::showWindow, 0, ImVec2(ImGui::CalcTextSize(XORSTR("Main Window"), NULL, true).x, 0.0f));
+		ImGui::Selectable("Main Window", &Main::showWindow, 0, ImVec2(ImGui::CalcTextSize("Main Window", NULL, true).x, 0.0f));
 		ImGui::SameLine();
 
 		if (ModSupport::current_mod != ModType::CSCO)
 		{
-			ImGui::Selectable(XORSTR("Skin & Model Changer Window"), &SkinModelChanger::showWindow, 0, ImVec2(ImGui::CalcTextSize(XORSTR("Skin & Model Changer Window"), NULL, true).x, 0.0f));
+			ImGui::Selectable("Skin & Model Changer Window", &SkinModelChanger::showWindow, 0, ImVec2(ImGui::CalcTextSize("Skin & Model Changer Window", NULL, true).x, 0.0f));
 			ImGui::SameLine();
 		}
 
-		ImGui::Selectable(XORSTR("Config Window"), &Configs::showWindow, 0, ImVec2(ImGui::CalcTextSize(XORSTR("Config Window"), NULL, true).x, 0.0f));
+		ImGui::Selectable("Config Window", &Configs::showWindow, 0, ImVec2(ImGui::CalcTextSize("Config Window", NULL, true).x, 0.0f));
 		ImGui::SameLine();
 
-		ImGui::Selectable(XORSTR("Spectators Window"), &Settings::ShowSpectators::enabled, 0, ImVec2(ImGui::CalcTextSize(XORSTR("Spectators Window"), NULL, true).x, 0.0f));
+		ImGui::Selectable("Spectators Window", &Settings::ShowSpectators::enabled, 0, ImVec2(ImGui::CalcTextSize("Spectators Window", NULL, true).x, 0.0f));
 		ImGui::SameLine();
 
-		ImGui::Selectable(XORSTR("Colors Window"), &Colors::showWindow, 0, ImVec2(ImGui::CalcTextSize(XORSTR("Colors Window"), NULL, true).x, 0.0f));
+		ImGui::Selectable("Colors Window", &Colors::showWindow, 0, ImVec2(ImGui::CalcTextSize("Colors Window", NULL, true).x, 0.0f));
 		ImGui::SameLine();
 
-		ImGui::Selectable(XORSTR("Player List Window"), &PlayerList::showWindow, 0, ImVec2(ImGui::CalcTextSize(XORSTR("Player List Window"), NULL, true).x, 0.0f));
+		ImGui::Selectable("Player List Window", &PlayerList::showWindow, 0, ImVec2(ImGui::CalcTextSize("Player List Window", NULL, true).x, 0.0f));
 		ImGui::SameLine();
 
-		ImGui::Selectable(XORSTR("Walk Bot Window"), &Walk::showWindow, 0, ImVec2(ImGui::CalcTextSize(XORSTR("Walk Bot Window"), NULL, true).x, 0.0f));
+		ImGui::Selectable("Walk Bot Window", &Walk::showWindow, 0, ImVec2(ImGui::CalcTextSize("Walk Bot Window", NULL, true).x, 0.0f));
 
 		ImGui::PopStyleVar();
 		ImGui::EndMainMenuBar();
 	}
 }
 
+void UI::QuickToggle()
+{
+	QuickMenu::showWindow = !QuickMenu::showWindow;
+}
+
 void UI::SwapWindow()
 {
-	if (UI::isVisible)
+	if (UI::isVisible) {
+		Draw::ImDrawText(ImVec2(4.f, 4.f), ImColor(255, 255, 255, 255), "Right click for the quick menu", NULL, 0.0f, NULL, ImFontFlags_Shadow);
 		return;
+	}
 
 	if (engine->IsInGame())
 		return;
 
-	Draw::ImDrawText(ImVec2(4.f, 4.f), ImColor(132, 112, 255, 255), XORSTR("RiccetHook"), NULL, 0.0f, NULL, ImFontFlags_Shadow);
+	if (Settings::Watermark::enabled)
+		Draw::ImDrawText(ImVec2(4.f, 4.f), Settings::Watermark::color.Color(), Settings::Watermark::text, NULL, 0.0f, NULL, ImFontFlags_Outline);
 }
 
 void UI::SetVisible(bool visible)
 {
 	UI::isVisible = visible;
-	cvar->FindVar(XORSTR("cl_mouseenable"))->SetValue(!UI::isVisible);
+	cvar->FindVar("cl_mouseenable")->SetValue(!UI::isVisible);
 }
 
 void UI::SetupWindows()
 {
 	if (UI::isVisible)
 	{
-		SetupMainMenuBar();
+		//SetupMainMenuBar();
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(960, 645));
 			Main::RenderWindow();
@@ -83,6 +93,7 @@ void UI::SetupWindows()
 		Colors::RenderWindow();
 		PlayerList::RenderWindow();
 		Walk::RenderWindow();
+		QuickMenu::RenderWindow();
 	}
 
 	ShowSpectators::RenderWindow();
